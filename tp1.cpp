@@ -6,8 +6,9 @@
 #include <fstream>
 #include "Label.h"
 #include "Sommet.h"
-using namespace std;
+#include "Pile.h"
 
+using namespace std;
 static int a;
 const int NMAX = 300;
 const int MMAX = 1000;
@@ -19,14 +20,19 @@ typedef struct Node {
 	int succ[NMAX][10];
 }Node;
 
-
+typedef struct arcs {
+	float longueur;
+	float duree;
+};
 typedef struct Arcs {
 	int arc[MMAX];
 	int from[MMAX];
 	int to[MMAX];
 	float longueur[MMAX];
 	float duree[MMAX];
+	arcs arcs[NMAX][NMAX];
 }Arcs;
+
 
 
 void Lecteur(string nom, Node& node, Arcs& arcs) {
@@ -70,7 +76,15 @@ void Lecteur(string nom, Node& node, Arcs& arcs) {
 		infile >> vide >> vide >> vide >> arcs.duree[i] >> vide;
 	}
 	//cout << node.succ[210][2] << endl;
-	cout << arcs.duree[2] << endl;
+	cout << arcs.longueur[2] << endl;
+	int n = 1;
+	for (int i = 1; i < NMAX; i++)
+	{
+		for (int j = 1; j < NMAX; j++)
+		{
+			arcs.arcs[i][j].longueur = arcs.longueur[n];
+		}
+	}
 	infile.close();
 
 }
@@ -79,9 +93,9 @@ bool inserer(Label& l,Sommet& s) {
 	Sommet::iterator it = s.begin();
 	//std::vector<Label> v1;
 	unsigned i = 0;
+	bool ajoute = false;
 	while (it != s.end())
 	{
-		bool ajoute = false;
 		if (l.get_distance()<(*it)->get_distance())
 		{
 			if (l.get_duree()<=(*it)->get_duree())
@@ -111,8 +125,10 @@ bool inserer(Label& l,Sommet& s) {
 			s.v.push_back(&l);
 		}
 	}
+	return ajoute;
 
 }
+//sommet里面有到路径
 int main()
 {
 	Node mon_node;
@@ -120,13 +136,33 @@ int main()
 	Lecteur("DLP_210.dat", mon_node, mon_arcs);
 	//initialise
 	Label L0;
-	Sommet s;
-	s.v.push_back(&L0);//empiler
-	if (s.v.size()>0)
+	Sommet s0;
+	Pile pile;
+	pile.p.push_back(&s0);
+	s0.v.push_back(&L0);
+
+	if (pile.p.size() > 0)
 	{
-		//取出pile里面的sommet，depiler。需要一个list里面装label，每次depiler之后保留的路径都需要再次分解
-		//x = 
-	}
+		Pile::iterator p_iterator = pile.begin();
+		p_iterator = pile.begin();
+		Sommet s_ite;
+		s_ite = *(*p_iterator);
+		int x = s_ite.numero;
+		Sommet::iterator it_label = s_ite.begin();
+
+		while (it_label != s_ite.end()) {
+			Label L;
+			L =  *(*it_label);
+
+		}
+
+
+
+			//取出pile里面的sommet，depiler。需要一个list里面装label，每次depiler之后保留的路径都需要再次分解
+			//x = 
+
+		
+	};
 
 	std::cout << "Hello World!\n";
 }

@@ -7,7 +7,7 @@ class Label
 	std::vector<int> chemin;
 public:
 	Label();
-	Label(int,int);
+	Label(int,int,int);
 	void set_distance(int);
 	int get_distance();
 	void set_duree(int);

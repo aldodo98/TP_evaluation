@@ -4,11 +4,12 @@
 Label::Label() {
 	distance = 0;
 	duree = 0;
+	chemin.push_back(0);
 }
-Label::Label(int a,int b) {
+Label::Label(int a,int b,int c) {
 	distance = a;
 	duree = b;
-	chemin.push_back(0);
+	chemin.push_back(c);
 }
 void Label::set_distance(int d) {
 	distance = d;

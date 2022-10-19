@@ -2,6 +2,11 @@
 
 Sommet::Sommet() {
 	nb_l = 0;
+	numero = 0;
+}
+Sommet::Sommet(int n) {
+	nb_l = 0;
+	numero = n;
 }
 
 void Sommet::ajouter(Label& l) {

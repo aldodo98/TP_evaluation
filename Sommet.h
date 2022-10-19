@@ -8,10 +8,13 @@
 class Sommet
 {
 	int nb_l;
+	
 public:
 	std::vector<Label*> v;
+	int numero;
 public:
 	Sommet();
+	Sommet(int);
 	using iterator = std::vector<Label*>::iterator;
 	std::vector<Label*>::iterator begin();
 	std::vector<Label*>::iterator end();
