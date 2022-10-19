@@ -2,8 +2,8 @@
 
 
 Label::Label() {
-	distance = 0;
-	duree = 0;
+	distance = 999;
+	duree = 999;
 	chemin.push_back(0);
 }
 Label::Label(int a,int b,int c) {
@@ -11,6 +11,7 @@ Label::Label(int a,int b,int c) {
 	duree = b;
 	chemin.push_back(c);
 }
+
 void Label::set_distance(int d) {
 	distance = d;
 }
