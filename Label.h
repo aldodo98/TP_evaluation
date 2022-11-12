@@ -2,15 +2,15 @@
 #include<vector>
 class Label
 {
-	int distance;
-	int duree;
+	float distance;
+	float duree;
 	std::vector<int> chemin;
 public:
 	Label();
-	Label(int,int,int);
-	void set_distance(int);
-	int get_distance();
-	void set_duree(int);
-	int get_duree();
+	Label(float, float);
+	void set_distance(float);
+	float get_distance();
+	void set_duree(float);
+	float get_duree();
 
 };

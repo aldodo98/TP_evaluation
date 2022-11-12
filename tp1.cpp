@@ -45,7 +45,7 @@ void Lecteur(string nom, Node& node, Arcs& arcs) {
 	int Nodes;
 	string Coords;
 	int Arcs;
-	int nb_succ_chaque_sommet[NMAX];
+	int nb_succ_chaque_sommet[NMAX] = { 0 };
 	infile.open(nom);
 	infile >> vide >> vide >> Name;
 	infile >> vide >> vide >> Nodes;
@@ -58,7 +58,7 @@ void Lecteur(string nom, Node& node, Arcs& arcs) {
 		infile >> vide >> vide >> vide >> node.x[i];
 		infile >> vide >> vide >> vide >> node.y[i];
 		infile >> vide >> vide >> vide;
-		for (int j = 1; j < 10; j++) {
+		for (int j = 1; j < 100; j++) {
 			infile >> node.succ[i][j];
 			infile >> vide;
 			node.nb_succ_chaque_sommet[i] += 1;
@@ -79,36 +79,39 @@ void Lecteur(string nom, Node& node, Arcs& arcs) {
 		infile >> vide >> vide >> vide >> arcs.from[i];
 		infile >> vide >> vide >> vide >> arcs.to[i];
 		infile >> vide >> vide >> vide >> arcs.longueur[i];
+		//float duree = 0;
 		infile >> vide >> vide >> vide >> arcs.duree[i] >> vide;
+		// = duree * abs(arcs.from[i] - arcs.to[i]);
 	}
 	//cout << node.succ[1][1] << endl;
 	//cout << arcs.longueur[2] << endl;
 	int n = 1;
-	for (int i = 1; i < Arcs+1; i++)
+	for (int i = 1; i < Arcs + 1; i++)
 	{
 		arcs.arcs[arcs.from[i]][arcs.to[i]].longueur = arcs.longueur[i];
 		arcs.arcs[arcs.from[i]][arcs.to[i]].duree = arcs.duree[i];
 
 	}
-	//cout << arcs.arcs[2][13].longueur << endl;
+	//cout << arcs.arcs[2][3].longueur << endl;
 	node.nb_node = Nodes;
 	node.nb_arcs = Arcs;
 	infile.close();
 
 }
 
-bool inserer(Label& l,Sommet& s) {
-	Sommet::iterator it = s.begin();
+bool inserer(Label& l, vector<pair<float, float>>& s, int k) {
+
 	//std::vector<Label> v1;
 	unsigned i = 0;
 	bool ajoute = false;
-	while (it != s.end())
+
+	for (int i = 0; i < s.size(); i++)
 	{
-		if (l.get_distance()<(*it)->get_distance())
+		if (l.get_distance() < s[i].first)
 		{
-			if (l.get_duree()<=(*it)->get_duree())
+			if (l.get_duree() < s[i].second)
 			{
-				s.v.erase(it);
+				s.erase(s.begin() + i);
 				ajoute = true;
 			}
 			else
@@ -118,25 +121,51 @@ bool inserer(Label& l,Sommet& s) {
 		}
 		else
 		{
-			if (l.get_duree()<(*it)->get_duree())
+			if (l.get_duree() < s[i].second)
 			{
 				ajoute = true;
 			}
 			else
 			{
 				ajoute = false;
-				break;
+
 			}
 		}
-		if (ajoute)
-		{
-			s.v.push_back(&l);
-		}
+	}
+	if (s.size() <= 0)
+	{
+		ajoute = true;
+	}
+	if (ajoute)
+	{
+		pair<float, float> p(l.get_distance(), l.get_duree());
+		s.push_back(p);
 	}
 	return ajoute;
 
 }
 //sommet里面有到路径
+//generer new label
+void generer_new_label(Node& node, Arcs& arcs, vector<pair<float, float>>& l, int o, int s, Label& l1, int nb_succ) {
+	float distance;
+	float duree;
+	int size = l.size();
+
+	if (l.size() <= 0)
+	{
+		distance = arcs.arcs[o][s].longueur;
+		duree = arcs.arcs[o][s].duree;
+	}
+	else
+	{
+		distance = l[nb_succ].first + arcs.arcs[o][s].longueur;
+		duree = l[nb_succ].second + arcs.arcs[o][s].duree;
+	}
+
+	l1.set_distance(distance);
+	l1.set_duree(duree);
+}
+
 int main()
 {
 	Node mon_node;
@@ -146,28 +175,55 @@ int main()
 	Label L0;
 	Sommet s0;
 	vector<int> pile;
-	pile.push_back(1);//将原点s0注入到pile里面
+	int nn = mon_node.nb_node + 1;
+	vector<vector<pair<float, float>>> l_list(nn);
 
-	cout << mon_node.succ[18][1] << endl;
-	while (pile.size()>0)
+	pile.push_back(1);//将原点s0注入到pile里面
+	/*
+	cout << mon_node.succ[2][1] << endl;
+	cout << l_list[6].size() << endl;
+
+	for (auto i:l_list[1])
+	{
+		cout << i.first << endl;
+
+	}
+	*/
+	int numbre = 0;
+	while (pile.size() > 0)
 	{
 		int x = pile.back();
 		pile.pop_back();
 		for (int i = 1; i <= mon_node.nb_succ_chaque_sommet[x]; i++)
 		{
-
-			if (mon_node.succ[x][i]!=x)
+			int j = 0;
+			do
 			{
+				int sommet_succ = mon_node.succ[x][i];
+				//pile中导出的坐标已知，现在求该点到其子坐标的值,需要先得知该坐标保存的路径
+				Label l1;
+				generer_new_label(mon_node, mon_arcs, l_list[x], x, sommet_succ, l1, j);
+				bool si_insere = inserer(l1, l_list[sommet_succ], sommet_succ);
 				//需要判断是不是dominer，如果非dominer，则加入pile，如果不是则不加入
 				//inserer之前要生成label和sommet
-				pile.push_back(mon_node.succ[x][i]);
-			}
+				if (si_insere)
+				{
+					pile.push_back(mon_node.succ[x][i]);
+				}
+				j++;
+			} while (j < l_list[x].size());
 		}
-		if (x!=1)
+		if (x == 210)
 		{
+			numbre++;
 
 		}
-
+	}
+	cout << numbre << endl;
+	
+	for (auto i : l_list[210])
+	{
+		cout << i.first << ", " << i.second << endl;
 	}
 	//s0.v.push_back(&L0);
 	/*
@@ -192,7 +248,7 @@ int main()
 
 					for (int k = 0; k <= s_ite.v.size(); k++)
 					{
-						s_ite.v[k] = 
+						s_ite.v[k] =
 					}
 				}
 				while (it_label != s_ite.end()) {
@@ -209,17 +265,17 @@ int main()
 		{
 
 		}
-		
+
 
 
 
 			//取出pile里面的sommet，depiler。需要一个list里面装label，每次depiler之后保留的路径都需要再次分解
-			//x = 
+			//x =
 
-		
+
 	};
 	*/
-	std::cout << "Hello World!\n";
+	std::cout << "Hello the end!\n";
 }
 
 

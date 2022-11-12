@@ -6,21 +6,21 @@ Label::Label() {
 	duree = 999;
 	chemin.push_back(0);
 }
-Label::Label(int a,int b,int c) {
+Label::Label(float a, float b) {
 	distance = a;
 	duree = b;
-	chemin.push_back(c);
+	//chemin.push_back(c);
 }
 
-void Label::set_distance(int d) {
+void Label::set_distance(float d) {
 	distance = d;
 }
-int Label::get_distance() {
+float Label::get_distance() {
 	return distance;
 }
-void Label::set_duree(int d) {
+void Label::set_duree(float d) {
 	duree = d;
 }
-int Label::get_duree() {
+float Label::get_duree() {
 	return duree;
 }
