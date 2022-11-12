@@ -145,10 +145,32 @@ int main()
 	//initialise
 	Label L0;
 	Sommet s0;
-	Pile pile;
-	pile.p.push_back(&s0);//将原点s0注入到pile里面
-	s0.v.push_back(&L0);
+	vector<int> pile;
+	pile.push_back(1);//将原点s0注入到pile里面
 
+	cout << mon_node.succ[18][1] << endl;
+	while (pile.size()>0)
+	{
+		int x = pile.back();
+		pile.pop_back();
+		for (int i = 1; i <= mon_node.nb_succ_chaque_sommet[x]; i++)
+		{
+
+			if (mon_node.succ[x][i]!=x)
+			{
+				//需要判断是不是dominer，如果非dominer，则加入pile，如果不是则不加入
+				//inserer之前要生成label和sommet
+				pile.push_back(mon_node.succ[x][i]);
+			}
+		}
+		if (x!=1)
+		{
+
+		}
+
+	}
+	//s0.v.push_back(&L0);
+	/*
 	if (pile.p.size() > 0)
 	{
 		Pile::iterator p_iterator = pile.begin();
@@ -187,7 +209,7 @@ int main()
 		{
 
 		}
-
+		
 
 
 
@@ -196,7 +218,7 @@ int main()
 
 		
 	};
-
+	*/
 	std::cout << "Hello World!\n";
 }
 
