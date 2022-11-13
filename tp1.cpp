@@ -97,25 +97,11 @@ void Lecteur(string nom, Node& node, Arcs& arcs) {
 	infile.close();
 
 }
-
-void supprimer_le_pire_sommet(vector<pair<float, float>>& s) {
+/*
+void supprimer_le_pire_sommet(map<float, float>& s) {
 	float sumDis = 0,sumDuree = 0;
 	float pire_score = 99,pire_label=1;
 
-	vector<pair<float, float>> vec;
-
-	map<float, float> generer_new_label;
-
-	for (auto i : s)
-	{
-		generer_new_label.insert(i);
-	}
-	float prec_score = 0;
-	for (auto i :generer_new_label)
-	{
-		vec.push_back(i);
-	}
-	//Le plus gros le meilleur
 	for (int i = 1;i<vec.size()-1;i++)
 	{
 		float prec_score = (vec[i].first - vec[i - 1].first) / (vec[i].second - vec[i-1].second);
@@ -138,21 +124,23 @@ void supprimer_le_pire_sommet(vector<pair<float, float>>& s) {
 		}
 	}
 
-}
+}*/
 
-bool inserer(Label& l, vector<pair<float, float>>& s, int k, int maxLabel) {
+bool inserer(Label& l, map<float, float>& s, int k, int maxLabel) {
 
 	//std::vector<Label> v1;
 	unsigned i = 0;
 	bool ajoute = true;
+	vector<float> label_;
 
-	for (int i = 0; i < s.size(); i++)
+	for (map<float,float>::iterator it = s.begin();it!=s.end();it++)
 	{
-		if (l.get_distance() < s[i].first)
+			
+		if (l.get_distance() < it->first)
 		{
-			if (l.get_duree() < s[i].second)
+			if (l.get_duree() < it->second)
 			{
-				s.erase(s.begin() + i);
+				label_.push_back(it->first);
 			}
 			else
 			{
@@ -160,7 +148,7 @@ bool inserer(Label& l, vector<pair<float, float>>& s, int k, int maxLabel) {
 		}
 		else
 		{
-			if (l.get_duree() < s[i].second)
+			if (l.get_duree() < it->second)
 			{
 			}
 			else
@@ -169,6 +157,10 @@ bool inserer(Label& l, vector<pair<float, float>>& s, int k, int maxLabel) {
 
 			}
 		}
+	}
+	for (auto i : label_)
+	{
+		s.erase(i);
 	}
 	if (s.size() <= 0)
 	{
@@ -179,13 +171,13 @@ bool inserer(Label& l, vector<pair<float, float>>& s, int k, int maxLabel) {
 		if (s.size()<maxLabel)
 		{
 			pair<float, float> p(l.get_distance(), l.get_duree());
-			s.push_back(p);
+			s.emplace(p);
 		}
 		else
 		{
-			supprimer_le_pire_sommet(s);
+			//supprimer_le_pire_sommet(s);
 			pair<float, float> p(l.get_distance(), l.get_duree());
-			s.push_back(p);
+			s.emplace(p);
 		}
 
 	}
@@ -194,11 +186,15 @@ bool inserer(Label& l, vector<pair<float, float>>& s, int k, int maxLabel) {
 }
 
 //generer new label
-void generer_new_label(Node& node, Arcs& arcs, vector<pair<float, float>>& l, int o, int s, Label& l1, int nb_succ) {
+void generer_new_label(Node& node, Arcs& arcs, map<float, float>& l, int o, int s, Label& l1, int nb_succ) {
 	float distance;
 	float duree;
 	int size = l.size();
-
+	map<float, float>::iterator it = l.begin();
+	for (int i = 0; i < nb_succ; i++)
+	{
+		it++;
+	}
 	if (l.size() <= 0)
 	{
 		distance = arcs.arcs[o][s].longueur;
@@ -206,8 +202,8 @@ void generer_new_label(Node& node, Arcs& arcs, vector<pair<float, float>>& l, in
 	}
 	else
 	{
-		distance = l[nb_succ].first + arcs.arcs[o][s].longueur;
-		duree = l[nb_succ].second + arcs.arcs[o][s].duree;
+		distance = it->first + arcs.arcs[o][s].longueur;
+		duree = it->second + arcs.arcs[o][s].duree;
 	}
 
 	l1.set_distance(distance);
@@ -226,7 +222,7 @@ int main()
 	//initialise
 	vector<int> pile;
 	int nn = mon_node.nb_node + 1;
-	vector<vector<pair<float, float>>> l_list(nn);
+	vector<map<float, float>> l_list(nn);
 	cout << "En train de calculer, attendez un instant" << endl;
 	pile.push_back(1);
 
