@@ -75,20 +75,13 @@ void Lecteur(string nom, Node& node, Arcs& arcs) {
 	}
 	infile >> vide >> vide >> vide >> vide;
 	for (int i = 1; i <= Arcs; i++) {
-		int from, to;
-		float duree;
 		infile >> vide >> vide >> arcs.arc[i];
-		//infile >> vide >> vide >> vide >> arcs.from[i];
-		infile >> vide >> vide >> vide >> from;
-		infile >> vide >> vide >> vide >> to;
-		arcs.from[i] = from;
-		arcs.to[i] = to;
-		// 
-		//infile >> vide >> vide >> vide >> arcs.to[i];
+		infile >> vide >> vide >> vide >> arcs.from[i];
+		infile >> vide >> vide >> vide >> arcs.to[i];
 		infile >> vide >> vide >> vide >> arcs.longueur[i];
+		float duree = 0;
 		infile >> vide >> vide >> vide >> duree >> vide;
-		
-		arcs.duree[i] = duree*abs(from-to);
+		arcs.duree[i] = duree * abs(arcs.from[i] - arcs.to[i]);
 	}
 	int n = 1;
 	for (int i = 1; i < Arcs + 1; i++)
