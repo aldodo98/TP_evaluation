@@ -75,20 +75,26 @@ void Lecteur(string nom, Node& node, Arcs& arcs) {
 	}
 	infile >> vide >> vide >> vide >> vide;
 	for (int i = 1; i <= Arcs; i++) {
+		int from, to;
+		float duree;
 		infile >> vide >> vide >> arcs.arc[i];
-		infile >> vide >> vide >> vide >> arcs.from[i];
-		infile >> vide >> vide >> vide >> arcs.to[i];
+		//infile >> vide >> vide >> vide >> arcs.from[i];
+		infile >> vide >> vide >> vide >> from;
+		infile >> vide >> vide >> vide >> to;
+		arcs.from[i] = from;
+		arcs.to[i] = to;
+		// 
+		//infile >> vide >> vide >> vide >> arcs.to[i];
 		infile >> vide >> vide >> vide >> arcs.longueur[i];
-		//float duree = 0;
-		infile >> vide >> vide >> vide >> arcs.duree[i] >> vide;
-		// = duree * abs(arcs.from[i] - arcs.to[i]);
+		infile >> vide >> vide >> vide >> duree >> vide;
+		
+		arcs.duree[i] = duree*abs(from-to);
 	}
-	//cout << node.succ[1][1] << endl;
-	//cout << arcs.longueur[2] << endl;
 	int n = 1;
 	for (int i = 1; i < Arcs + 1; i++)
 	{
 		arcs.arcs[arcs.from[i]][arcs.to[i]].longueur = arcs.longueur[i];
+		//arcs.arcs[arcs.from[i]][arcs.to[i]].duree = arcs.duree[i]* abs(arcs.from[i] - arcs.to[i]);
 		arcs.arcs[arcs.from[i]][arcs.to[i]].duree = arcs.duree[i];
 
 	}
@@ -103,7 +109,7 @@ bool inserer(Label& l, vector<pair<float, float>>& s, int k) {
 
 	//std::vector<Label> v1;
 	unsigned i = 0;
-	bool ajoute = false;
+	bool ajoute = true;
 
 	for (int i = 0; i < s.size(); i++)
 	{
@@ -112,18 +118,18 @@ bool inserer(Label& l, vector<pair<float, float>>& s, int k) {
 			if (l.get_duree() < s[i].second)
 			{
 				s.erase(s.begin() + i);
-				ajoute = true;
+				//ajoute = true;
 			}
 			else
 			{
-				ajoute = true;
+				//ajoute = true;
 			}
 		}
 		else
 		{
 			if (l.get_duree() < s[i].second)
 			{
-				ajoute = true;
+				//ajoute = true;
 			}
 			else
 			{
@@ -171,6 +177,8 @@ int main()
 	Node mon_node;
 	Arcs mon_arcs;
 	Lecteur("DLP_210.dat", mon_node, mon_arcs);
+	//mon_arcs.duree[1] = mon_arcs.duree[1] * abs();
+
 	//initialise
 	Label L0;
 	Sommet s0;
