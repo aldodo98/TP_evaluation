@@ -7,6 +7,7 @@
 #include "Label.h"
 #include "Sommet.h"
 #include "Pile.h"
+#include <map>
 
 using namespace std;
 static int a;
@@ -87,7 +88,6 @@ void Lecteur(string nom, Node& node, Arcs& arcs) {
 	for (int i = 1; i < Arcs + 1; i++)
 	{
 		arcs.arcs[arcs.from[i]][arcs.to[i]].longueur = arcs.longueur[i];
-		//arcs.arcs[arcs.from[i]][arcs.to[i]].duree = arcs.duree[i]* abs(arcs.from[i] - arcs.to[i]);
 		arcs.arcs[arcs.from[i]][arcs.to[i]].duree = arcs.duree[i];
 
 	}
@@ -98,7 +98,49 @@ void Lecteur(string nom, Node& node, Arcs& arcs) {
 
 }
 
-bool inserer(Label& l, vector<pair<float, float>>& s, int k) {
+void supprimer_le_pire_sommet(vector<pair<float, float>>& s) {
+	float sumDis = 0,sumDuree = 0;
+	float pire_score = 99,pire_label=1;
+
+	vector<pair<float, float>> vec;
+
+	map<float, float> generer_new_label;
+
+	for (auto i : s)
+	{
+		generer_new_label.insert(i);
+	}
+	float prec_score = 0;
+	for (auto i :generer_new_label)
+	{
+		vec.push_back(i);
+	}
+	//Le plus gros le meilleur
+	for (int i = 1;i<vec.size()-1;i++)
+	{
+		float prec_score = (vec[i].first - vec[i - 1].first) / (vec[i].second - vec[i-1].second);
+		//float succ_score = (vec[i].first - vec[i - 1].first) / (vec[i].second - vec[i].second);
+		float ps_score = (vec[i + 1].first - vec[i - 1].first) / (vec[i + 1].second - vec[i - 1].second);
+		float score = prec_score /ps_score;
+		if (score<pire_score)
+		{
+			pire_score = score;
+			pire_label = vec[i].first;
+		}
+	}
+	for (int i = 0; i<vec.size(); i++)
+	{
+		if (s[i].first == pire_label)
+		{
+			s.erase(s.begin() + i);
+			cout << "erase one" << endl;
+			break;
+		}
+	}
+
+}
+
+bool inserer(Label& l, vector<pair<float, float>>& s, int k, int maxLabel) {
 
 	//std::vector<Label> v1;
 	unsigned i = 0;
@@ -111,18 +153,15 @@ bool inserer(Label& l, vector<pair<float, float>>& s, int k) {
 			if (l.get_duree() < s[i].second)
 			{
 				s.erase(s.begin() + i);
-				//ajoute = true;
 			}
 			else
 			{
-				//ajoute = true;
 			}
 		}
 		else
 		{
 			if (l.get_duree() < s[i].second)
 			{
-				//ajoute = true;
 			}
 			else
 			{
@@ -137,13 +176,23 @@ bool inserer(Label& l, vector<pair<float, float>>& s, int k) {
 	}
 	if (ajoute)
 	{
-		pair<float, float> p(l.get_distance(), l.get_duree());
-		s.push_back(p);
+		if (s.size()<maxLabel)
+		{
+			pair<float, float> p(l.get_distance(), l.get_duree());
+			s.push_back(p);
+		}
+		else
+		{
+			supprimer_le_pire_sommet(s);
+			pair<float, float> p(l.get_distance(), l.get_duree());
+			s.push_back(p);
+		}
+
 	}
 	return ajoute;
 
 }
-//sommet里面有到路径
+
 //generer new label
 void generer_new_label(Node& node, Arcs& arcs, vector<pair<float, float>>& l, int o, int s, Label& l1, int nb_succ) {
 	float distance;
@@ -167,29 +216,29 @@ void generer_new_label(Node& node, Arcs& arcs, vector<pair<float, float>>& l, in
 
 int main()
 {
+	
 	Node mon_node;
 	Arcs mon_arcs;
+	int maxLabel = 60;
 	Lecteur("DLP_210.dat", mon_node, mon_arcs);
 	//mon_arcs.duree[1] = mon_arcs.duree[1] * abs();
 
 	//initialise
-	Label L0;
-	Sommet s0;
 	vector<int> pile;
 	int nn = mon_node.nb_node + 1;
 	vector<vector<pair<float, float>>> l_list(nn);
+	cout << "En train de calculer, attendez un instant" << endl;
+	pile.push_back(1);
 
-	pile.push_back(1);//将原点s0注入到pile里面
-	/*
+	/* verifier les données
 	cout << mon_node.succ[2][1] << endl;
 	cout << l_list[6].size() << endl;
-
 	for (auto i:l_list[1])
 	{
 		cout << i.first << endl;
-
 	}
 	*/
+	
 	int numbre = 0;
 	while (pile.size() > 0)
 	{
@@ -200,13 +249,12 @@ int main()
 			int j = 0;
 			do
 			{
+				//Les sommets dans la pile sont connues, maintenant pour trouver la label à ses sous-sommet.
 				int sommet_succ = mon_node.succ[x][i];
-				//pile中导出的坐标已知，现在求该点到其子坐标的值,需要先得知该坐标保存的路径
 				Label l1;
+				//juger si c'est un label dominé, si non, ajouter dans la pile
 				generer_new_label(mon_node, mon_arcs, l_list[x], x, sommet_succ, l1, j);
-				bool si_insere = inserer(l1, l_list[sommet_succ], sommet_succ);
-				//需要判断是不是dominer，如果非dominer，则加入pile，如果不是则不加入
-				//inserer之前要生成label和sommet
+				bool si_insere = inserer(l1, l_list[sommet_succ], sommet_succ, maxLabel);
 				if (si_insere)
 				{
 					pile.push_back(mon_node.succ[x][i]);
@@ -214,13 +262,15 @@ int main()
 				j++;
 			} while (j < l_list[x].size());
 		}
+		/* compter il y a combien de chemin pouvent arriver à sommet 210
 		if (x == 210)
 		{
 			numbre++;
 
-		}
+		}*/
 	}
-	cout << numbre << endl;
+	
+	//cout << numbre << endl;
 	
 	for (auto i : l_list[210])
 	{
@@ -262,17 +312,6 @@ int main()
 			//quand le pile est vide
 			break;
 		}
-		for (int i = 1; i < mon_node.nb_node; i++)
-		{
-
-		}
-
-
-
-
-			//取出pile里面的sommet，depiler。需要一个list里面装label，每次depiler之后保留的路径都需要再次分解
-			//x =
-
 
 	};
 	*/
