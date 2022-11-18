@@ -21,21 +21,9 @@
     <ClCompile Include="Label.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Sommet.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Pile.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Label.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Sommet.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Pile.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

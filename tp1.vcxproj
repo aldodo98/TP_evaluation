@@ -148,14 +148,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Label.cpp" />
-    <ClCompile Include="Pile.cpp" />
-    <ClCompile Include="Sommet.cpp" />
     <ClCompile Include="tp1.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Label.h" />
-    <ClInclude Include="Pile.h" />
-    <ClInclude Include="Sommet.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

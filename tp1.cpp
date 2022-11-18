@@ -5,9 +5,9 @@
 #include<vector>
 #include <fstream>
 #include "Label.h"
-#include "Sommet.h"
-#include "Pile.h"
+#include <algorithm>
 #include <map>
+
 
 using namespace std;
 static int a;
@@ -97,46 +97,33 @@ void Lecteur(string nom, Node& node, Arcs& arcs) {
 	infile.close();
 
 }
+bool least_pair(pair<float, float> p1, pair<float, float> p2) { return (p1.first < p2.first); }
 
 void supprimer_le_pire_sommet(vector<pair<float, float>>& s) {
 	float sumDis = 0,sumDuree = 0;
-	float pire_score = 99,pire_label=1;
+	float pire_score = 99;
 
-	vector<pair<float, float>> vec;
-
-	map<float, float> generer_new_label;
-
-	for (auto i : s)
-	{
-		generer_new_label.insert(i);
-	}
-	float prec_score = 0;
-	for (auto i :generer_new_label)
-	{
-		vec.push_back(i);
-	}
+	sort(s.begin(), s.end());
+	
+	//for (auto i :s)
+	//{
+	//	cout << i.first << endl;
+	//}
 	//Le plus gros le meilleur
-	for (int i = 1;i<vec.size()-1;i++)
+	int n_erase = 0;
+	for (int i = 1;i<s.size()-1;i++)
 	{
-		float prec_score = (vec[i].first - vec[i - 1].first) / (vec[i].second - vec[i-1].second);
-		//float succ_score = (vec[i].first - vec[i - 1].first) / (vec[i].second - vec[i].second);
-		float ps_score = (vec[i + 1].first - vec[i - 1].first) / (vec[i + 1].second - vec[i - 1].second);
+		float prec_score = (s[i].first - s[i - 1].first) / (s[i].second - s[i-1].second);
+		float ps_score = (s[i + 1].first - s[i - 1].first) / (s[i + 1].second - s[i - 1].second);
 		float score = prec_score /ps_score;
 		if (score<pire_score)
 		{
 			pire_score = score;
-			pire_label = vec[i].first;
+			n_erase = i;
 		}
 	}
-	for (int i = 0; i<vec.size(); i++)
-	{
-		if (s[i].first == pire_label)
-		{
-			s.erase(s.begin() + i);
-			cout << "erase one" << endl;
-			break;
-		}
-	}
+
+	s.erase(s.begin() + n_erase);
 
 }
 
@@ -176,17 +163,8 @@ bool inserer(Label& l, vector<pair<float, float>>& s, int k, int maxLabel) {
 	}
 	if (ajoute)
 	{
-		if (s.size()<maxLabel)
-		{
-			pair<float, float> p(l.get_distance(), l.get_duree());
-			s.push_back(p);
-		}
-		else
-		{
-			supprimer_le_pire_sommet(s);
-			pair<float, float> p(l.get_distance(), l.get_duree());
-			s.push_back(p);
-		}
+		pair<float, float> p(l.get_distance(), l.get_duree());
+		s.push_back(p);
 
 	}
 	return ajoute;
@@ -216,17 +194,19 @@ void generer_new_label(Node& node, Arcs& arcs, vector<pair<float, float>>& l, in
 
 int main()
 {
-	
+
+	srand((unsigned)time(NULL));
 	Node mon_node;
 	Arcs mon_arcs;
-	int maxLabel = 60;
+	int maxLabel = 50;
 	Lecteur("DLP_210.dat", mon_node, mon_arcs);
-	//mon_arcs.duree[1] = mon_arcs.duree[1] * abs();
-
+	clock_t start = clock();
 	//initialise
 	vector<int> pile;
 	int nn = mon_node.nb_node + 1;
 	vector<vector<pair<float, float>>> l_list(nn);
+
+	l_list.reserve(5000);
 	cout << "En train de calculer, attendez un instant" << endl;
 	pile.push_back(1);
 
@@ -238,8 +218,7 @@ int main()
 		cout << i.first << endl;
 	}
 	*/
-	
-	int numbre = 0;
+
 	while (pile.size() > 0)
 	{
 		int x = pile.back();
@@ -249,6 +228,7 @@ int main()
 			int j = 0;
 			do
 			{
+				//numero++;
 				//Les sommets dans la pile sont connues, maintenant pour trouver la label à ses sous-sommet.
 				int sommet_succ = mon_node.succ[x][i];
 				Label l1;
@@ -260,61 +240,20 @@ int main()
 					pile.push_back(mon_node.succ[x][i]);
 				}
 				j++;
+				if (j> maxLabel)
+				{
+					break;
+				}
 			} while (j < l_list[x].size());
 		}
-		/* compter il y a combien de chemin pouvent arriver à sommet 210
-		if (x == 210)
-		{
-			numbre++;
-
-		}*/
 	}
-	
-	//cout << numbre << endl;
-	
+	clock_t finish = clock();
+	cout << finish-start/ CLOCKS_PER_SEC << endl;
 	for (auto i : l_list[210])
 	{
 		cout << i.first << ", " << i.second << endl;
 	}
-	//s0.v.push_back(&L0);
-	/*
-	if (pile.p.size() > 0)
-	{
-		Pile::iterator p_iterator = pile.begin();
-		p_iterator = pile.begin(); //将pile里面的第一个sommet取出来，准备遍历
-		Sommet s_ite;
-		Sommet::iterator it_label = s_ite.begin();
-		//第一个循环，取出pile里面的sommet，然后获取下一个sommet的信息
-		while (true)
-		{
-			while (p_iterator != pile.end())
-			{
-				s_ite = *(*p_iterator);
-				int x = s_ite.numero;
-				int nb_succ = mon_node.nb_succ_chaque_sommet[x];
-				for (int j = 1; j <= nb_succ; j++)
-				{
-					//cout << mon_node.succ[x][j] << endl;
-					int n_sommet_succ = mon_node.succ[x][j]; //得到该sommet的子sommet,接下来要求子sommet里面有多少个label
 
-					for (int k = 0; k <= s_ite.v.size(); k++)
-					{
-						s_ite.v[k] =
-					}
-				}
-				while (it_label != s_ite.end()) {
-					Label L;
-					L = *(*it_label);
-					it_label++;
-				}
-				p_iterator++;
-			}
-			//quand le pile est vide
-			break;
-		}
-
-	};
-	*/
 	std::cout << "Hello the end!\n";
 }
 
